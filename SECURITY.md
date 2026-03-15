@@ -20,8 +20,6 @@ DID but cannot forge a signature that matches the real DID Document's public key
 
 ### Trusted Wallet Allowlist
 
-For additional safety, filter discovered wallets against an allowlist:
-
 ```ts
 const TRUSTED_WALLETS = [
   'did:web:attestto.com:wallets:attestto-creds',
@@ -41,22 +39,20 @@ const trusted = wallets.filter(w => TRUSTED_WALLETS.includes(w.did))
 
 ## API Key Exposure
 
-**Never pass API keys in URLs from browser code.** URLs are visible in the
-browser's network tab, console, and extension devtools.
+**Never pass API keys in URLs from browser code.**
 
 ```ts
 // BAD — key exposed in browser
-sns({ apiUrl: 'https://rpc.helius.xyz/?api-key=SECRET' })
+verifyPresentation(vp, wallet, { resolverUrl: 'https://resolver.com/?key=SECRET', ... })
 
 // GOOD — proxy holds the key
-sns({ apiUrl: 'https://api.yourapp.com/sns-proxy' })
+verifyPresentation(vp, wallet, { resolverUrl: 'https://api.yourapp.com/resolver', ... })
 ```
 
 ## Credential Verification Chain of Trust
 
 The DID method specification defines where to resolve — not the VC itself.
-A VC should never contain its own resolver address, as this would create
-circular trust (a malicious VC could point to a fake resolver).
+A VC should never contain its own resolver address, as this creates circular trust.
 
 ```
 Wallet announces DID  →  Consumer resolves DID via method spec
