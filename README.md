@@ -4,6 +4,22 @@ Universal discovery protocol for credential wallet browser extensions — like [
 
 Sites broadcast a discovery event, installed wallet extensions announce themselves with their DID identity and metadata. Multiple wallets can coexist — the user always chooses.
 
+```mermaid
+sequenceDiagram
+    participant Site as Website
+    participant A as Extension A<br>(Attestto Creds)
+    participant B as Extension B<br>(Credible)
+
+    Site->>Site: dispatchEvent('credential-wallet:discover')
+    A-->>Site: announce → did:web:attestto.com:wallets:attestto-creds
+    B-->>Site: announce → did:web:credible.dev:wallets:credible
+    Note over Site: Collect announcements (800ms window)
+    Site->>Site: Show wallet picker → user chooses
+    Site->>A: navigator.credentials.get({ VerifiablePresentation })
+    A-->>Site: Returns signed VP
+    Site->>Site: Verify VP → resolve DID → check signature → issuer trust → revocation
+```
+
 ## Identity Middleware — not a wallet connector
 
 WalletConnect, Dynamic, and Wagmi are **crypto wallet connectors**. They connect MetaMask, Phantom, and Ledger to dApps for **transaction signing** — send ETH, swap tokens, call contracts. They prove "this person controls this private key." That's where they stop.
@@ -203,24 +219,6 @@ registerWallet({
     url: 'https://yourorg.com',
   },
 })
-```
-
-## How It Works
-
-```mermaid
-sequenceDiagram
-    participant Site as Website
-    participant A as Extension A<br>(Attestto Creds)
-    participant B as Extension B<br>(Credible)
-
-    Site->>Site: dispatchEvent('credential-wallet:discover')
-    A-->>Site: announce → did:web:attestto.com:wallets:attestto-creds
-    B-->>Site: announce → did:web:credible.dev:wallets:credible
-    Note over Site: Collect announcements (800ms window)
-    Site->>Site: Show wallet picker → user chooses
-    Site->>A: navigator.credentials.get({ VerifiablePresentation })
-    A-->>Site: Returns signed VP
-    Site->>Site: Verify VP → resolve DID → check signature → issuer trust → revocation
 ```
 
 ## API
