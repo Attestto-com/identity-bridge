@@ -207,45 +207,21 @@ registerWallet({
 
 ## How It Works
 
-<table>
-<tr>
-<td width="40" align="center"><strong>1</strong></td>
-<td>Site dispatches <code>credential-wallet:discover</code> event</td>
-</tr>
-<tr>
-<td align="center">↓</td>
-<td></td>
-</tr>
-<tr>
-<td width="40" align="center"><strong>2</strong></td>
-<td>Each installed extension responds with <code>credential-wallet:announce</code> containing its DID + metadata</td>
-</tr>
-<tr>
-<td></td>
-<td>
-<table>
-<tr><td>Extension A (Attestto Creds) → announces <code>did:web:attestto.com:wallets:attestto-creds</code></td></tr>
-<tr><td>Extension B (Credible) → announces <code>did:web:credible.dev:wallets:credible</code></td></tr>
-</table>
-</td>
-</tr>
-<tr>
-<td align="center"><strong>3</strong></td>
-<td>Site collects all announcements (800ms window)</td>
-</tr>
-<tr>
-<td align="center"><strong>4</strong></td>
-<td>Site shows wallet picker — user chooses</td>
-</tr>
-<tr>
-<td align="center"><strong>5</strong></td>
-<td><code>navigator.credentials.get()</code> → wallet returns a Verifiable Presentation</td>
-</tr>
-<tr>
-<td align="center"><strong>6</strong></td>
-<td>Site verifies VP → resolve holder DID → check signature → check issuer trust → check revocation</td>
-</tr>
-</table>
+```mermaid
+sequenceDiagram
+    participant Site as Website
+    participant A as Extension A<br>(Attestto Creds)
+    participant B as Extension B<br>(Credible)
+
+    Site->>Site: dispatchEvent('credential-wallet:discover')
+    A-->>Site: announce → did:web:attestto.com:wallets:attestto-creds
+    B-->>Site: announce → did:web:credible.dev:wallets:credible
+    Note over Site: Collect announcements (800ms window)
+    Site->>Site: Show wallet picker → user chooses
+    Site->>A: navigator.credentials.get({ VerifiablePresentation })
+    A-->>Site: Returns signed VP
+    Site->>Site: Verify VP → resolve DID → check signature → issuer trust → revocation
+```
 
 ## API
 
