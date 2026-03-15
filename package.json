@@ -1,7 +1,7 @@
 {
-  "name": "credential-wallet-connector",
+  "name": "identity-bridge",
   "version": "0.1.0",
-  "description": "Universal discovery protocol for credential wallet extensions — like EIP-6963 but for W3C identity wallets",
+  "description": "Identity middleware for credential wallet discovery, VP exchange, and cryptographic verification — the identity layer crypto wallets are missing",
   "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -35,7 +35,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/chongkan/credential-wallet-connector.git"
+    "url": "https://github.com/Attestto-com/identity-bridge.git"
   },
   "author": "Eduardo Chongkan",
   "devDependencies": {

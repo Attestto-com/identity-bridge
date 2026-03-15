@@ -1,4 +1,4 @@
-# credential-wallet-connector
+# identity-bridge
 
 Universal discovery protocol for credential wallet browser extensions — like [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) but for W3C identity wallets.
 
@@ -17,15 +17,15 @@ A crypto wallet connector tells you someone owns address `0xabc...`. It cannot t
 ```
 ┌──────────────────────────────────────────────────────────────────┐
 │  1. WalletConnect / Phantom            → address + signer       │
-│  2. wallet-identity-resolver           → DIDs, KYC, vLEI, SBTs │
-│  3. credential-wallet-connector        → VP request + verify    │
+│  2. identity-resolver           → DIDs, KYC, vLEI, SBTs │
+│  3. identity-bridge        → VP request + verify    │
 └──────────────────────────────────────────────────────────────────┘
      Existing connectors ──┘    Identity middleware ──┘
 ```
 
 ### What you get vs. what exists
 
-| | WalletConnect / Dynamic / Wagmi | credential-wallet-connector |
+| | WalletConnect / Dynamic / Wagmi | identity-bridge |
 |---|---|---|
 | **Connects** | Crypto wallets (MetaMask, Phantom) | Credential wallets (Attestto Creds, Credible) |
 | **Protocol** | JSON-RPC (`eth_sign`, `sol_signTransaction`) | W3C CHAPI (`VerifiablePresentation`) |
@@ -38,8 +38,8 @@ A crypto wallet connector tells you someone owns address `0xabc...`. It cannot t
 ### The full stack
 
 1. **WalletConnect** → connect Solana/Ethereum wallet → get address
-2. **[wallet-identity-resolver](https://github.com/Attestto-com/wallet-identity-resolver)** → resolve that address → find SNS domain, Attestto credentials, Civic pass, vLEI attestation
-3. **credential-wallet-connector** → discover credential wallet extensions → request VP → verify cryptographically
+2. **[identity-resolver](https://github.com/Attestto-com/identity-resolver)** → resolve that address → find SNS domain, Attestto credentials, Civic pass, vLEI attestation
+3. **identity-bridge** → discover credential wallet extensions → request VP → verify cryptographically
 
 Step 1 uses existing connectors. Steps 2–3 are what we built — the identity middleware that MetaMask, Phantom, and every crypto wallet are currently missing.
 
@@ -48,7 +48,7 @@ The closest existing standard is [W3C CHAPI](https://w3c-ccg.github.io/credentia
 ## Install
 
 ```bash
-npm install credential-wallet-connector
+npm install identity-bridge
 ```
 
 ## Quick Start
@@ -56,7 +56,7 @@ npm install credential-wallet-connector
 ### Site-side (your web app)
 
 ```ts
-import { discoverWallets, verifyPresentation } from 'credential-wallet-connector'
+import { discoverWallets, verifyPresentation } from 'identity-bridge'
 
 // 1. Discover installed credential wallets
 const wallets = await discoverWallets()
@@ -99,7 +99,7 @@ if (result.valid) {
 ### Wallet-side (your browser extension)
 
 ```ts
-import { registerWallet } from 'credential-wallet-connector'
+import { registerWallet } from 'identity-bridge'
 
 // Call once in your content script (MAIN world)
 registerWallet({
@@ -219,7 +219,7 @@ interface WalletMaintainer {
 ### Event Constants
 
 ```ts
-import { DISCOVER_EVENT, ANNOUNCE_EVENT } from 'credential-wallet-connector'
+import { DISCOVER_EVENT, ANNOUNCE_EVENT } from 'identity-bridge'
 // 'credential-wallet:discover'
 // 'credential-wallet:announce'
 ```
@@ -234,7 +234,7 @@ Add the package to your extension and call `registerWallet()` in a content scrip
 
 ```ts
 // content-script.ts (MAIN world)
-import { registerWallet } from 'credential-wallet-connector'
+import { registerWallet } from 'identity-bridge'
 
 registerWallet({
   did: 'did:web:yourorg.com:wallets:your-wallet',

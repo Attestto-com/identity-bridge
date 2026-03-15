@@ -18,7 +18,7 @@ import type { WalletAnnouncement, DiscoverDetail, AnnounceDetail } from './types
  *
  * @example
  * ```ts
- * import { discoverWallets } from 'credential-wallet-connector'
+ * import { discoverWallets } from 'identity-bridge'
  *
  * const wallets = await discoverWallets()
  * if (wallets.length === 0) {

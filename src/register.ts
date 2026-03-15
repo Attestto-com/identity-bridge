@@ -16,7 +16,7 @@ import type { WalletAnnouncement, DiscoverDetail, AnnounceDetail } from './types
  *
  * @example
  * ```ts
- * import { registerWallet } from 'credential-wallet-connector'
+ * import { registerWallet } from 'identity-bridge'
  *
  * registerWallet({
  *   did: 'did:web:attestto.com:wallets:attestto-did',
