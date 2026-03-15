@@ -1,0 +1,45 @@
+{
+  "name": "credential-wallet-connector",
+  "version": "0.1.0",
+  "description": "Universal discovery protocol for credential wallet extensions — like EIP-6963 but for W3C identity wallets",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "lint": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "did",
+    "credential",
+    "wallet",
+    "discovery",
+    "chapi",
+    "verifiable-credentials",
+    "verifiable-presentation",
+    "w3c",
+    "ssi",
+    "identity",
+    "didcomm"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chongkan/credential-wallet-connector.git"
+  },
+  "author": "Eduardo Chongkan",
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0"
+  }
+}
