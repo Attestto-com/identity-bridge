@@ -1,7 +1,7 @@
 {
-  "name": "@attestto/identity-bridge",
-  "version": "0.1.1",
-  "description": "Identity middleware for credential wallet discovery, VP exchange, and cryptographic verification — the identity layer crypto wallets are missing",
+  "name": "identity-bridge",
+  "version": "0.2.0",
+  "description": "Universal wallet adapter for credential wallet extensions — discovery, VP exchange, and cryptographic verification",
   "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -37,7 +37,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Attestto-com/identity-bridge.git"
+    "url": "https://github.com/Attestto-com/id-wallet-adapter.git"
   },
   "author": "Eduardo Chongkan",
   "devDependencies": {
