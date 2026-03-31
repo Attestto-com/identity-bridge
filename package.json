@@ -1,5 +1,5 @@
 {
-  "name": "identity-bridge",
+  "name": "@attestto/id-wallet-adapter",
   "version": "0.2.0",
   "description": "Universal wallet adapter for credential wallet extensions — discovery, VP exchange, and cryptographic verification",
   "type": "module",

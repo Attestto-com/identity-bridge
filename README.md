@@ -1,4 +1,4 @@
-# identity-bridge
+# @attestto/id-wallet-adapter
 
 Universal wallet adapter for credential wallet browser extensions — like [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) but for W3C identity wallets.
 
@@ -51,7 +51,7 @@ A crypto wallet connector tells you someone owns address `0xabc...`. It cannot t
 </tr>
 <tr>
 <td align="center">3</td>
-<td><strong>identity-bridge</strong></td>
+<td><strong>id-wallet-adapter</strong></td>
 <td align="center">🛡️</td>
 <td>VP request + cryptographic verification</td>
 </tr>
@@ -66,7 +66,7 @@ A crypto wallet connector tells you someone owns address `0xabc...`. It cannot t
 <tr>
 <th width="160"></th>
 <th width="320">WalletConnect / Dynamic / Wagmi</th>
-<th width="320">identity-bridge</th>
+<th width="320">id-wallet-adapter</th>
 </tr>
 <tr>
 <td><strong>Connects</strong></td>
@@ -109,7 +109,7 @@ A crypto wallet connector tells you someone owns address `0xabc...`. It cannot t
 
 1. **WalletConnect** → connect Solana/Ethereum wallet → get address
 2. **[identity-resolver](https://github.com/Attestto-com/identity-resolver)** → resolve that address → find SNS domain, Attestto credentials, Civic pass, vLEI attestation
-3. **identity-bridge** → discover credential wallet extensions → request VP → verify cryptographically
+3. **id-wallet-adapter** → discover credential wallet extensions → request VP → verify cryptographically
 
 ### How this relates to existing standards and tools
 
@@ -148,12 +148,12 @@ Several projects touch parts of this problem. None cover the same surface.
 </tr>
 </table>
 
-**Where identity-bridge fits:** The W3C Digital Credentials API routes to OS-level wallets. identity-bridge discovers **browser extension** wallets — the same gap [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) filled for Ethereum wallets when `window.ethereum` only supported one provider at a time. As DC-API matures for OS wallets and CHAPI standardizes the browser API, identity-bridge provides the missing extension discovery layer with built-in VP verification that neither standard includes.
+**Where id-wallet-adapter fits:** The W3C Digital Credentials API routes to OS-level wallets. id-wallet-adapter discovers **browser extension** wallets — the same gap [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) filled for Ethereum wallets when `window.ethereum` only supported one provider at a time. As DC-API matures for OS wallets and CHAPI standardizes the browser API, id-wallet-adapter provides the missing extension discovery layer with built-in VP verification that neither standard includes.
 
 ## Install
 
 ```bash
-npm install identity-bridge
+npm install @attestto/id-wallet-adapter
 ```
 
 ## Quick Start
@@ -161,7 +161,7 @@ npm install identity-bridge
 ### Site-side (your web app)
 
 ```ts
-import { discoverWallets, verifyPresentation } from 'identity-bridge'
+import { discoverWallets, verifyPresentation } from '@attestto/id-wallet-adapter'
 
 // 1. Discover installed credential wallets
 const wallets = await discoverWallets()
@@ -204,7 +204,7 @@ if (result.valid) {
 ### Wallet-side (your browser extension)
 
 ```ts
-import { registerWallet } from 'identity-bridge'
+import { registerWallet } from '@attestto/id-wallet-adapter'
 
 // Call once in your content script (MAIN world)
 registerWallet({
@@ -301,7 +301,7 @@ interface WalletMaintainer {
 ### Event Constants
 
 ```ts
-import { DISCOVER_EVENT, ANNOUNCE_EVENT } from 'identity-bridge'
+import { DISCOVER_EVENT, ANNOUNCE_EVENT } from '@attestto/id-wallet-adapter'
 // 'credential-wallet:discover'
 // 'credential-wallet:announce'
 ```
@@ -316,7 +316,7 @@ Add the package to your extension and call `registerWallet()` in a content scrip
 
 ```ts
 // content-script.ts (MAIN world)
-import { registerWallet } from 'identity-bridge'
+import { registerWallet } from '@attestto/id-wallet-adapter'
 
 registerWallet({
   did: 'did:web:yourorg.com:wallets:your-wallet',

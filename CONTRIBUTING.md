@@ -1,12 +1,12 @@
-# Contributing to identity-bridge
+# Contributing to @attestto/id-wallet-adapter
 
 Thanks for your interest in making credential wallet discovery a standard.
 
 ## Getting Started
 
 ```bash
-git clone https://github.com/Attestto-com/identity-bridge.git
-cd identity-bridge
+git clone https://github.com/Attestto-com/id-wallet-adapter.git
+cd id-wallet-adapter
 npm install
 npm run lint    # Type-check
 npm run build   # Build ESM + CJS + declarations
