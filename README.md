@@ -121,6 +121,7 @@ The identity space has wire protocols (how credentials move) and discovery proto
 |---|---|---|
 | [OID4VP](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html) | VP exchange via OAuth 2.0 flows, QR codes, deep links | Assumes you already know the wallet. No browser extension discovery. |
 | [DIDComm v2](https://identity.foundation/didcomm-messaging/spec/) | Encrypted peer-to-peer messaging between agents | Designed for server/mobile agents, not browser extensions. |
+| [WACI-DIDComm](https://identity.foundation/wallet-and-credential-interactions/) | Challenge-response credential exchange via QR/deep links | Defines the exchange flow, not wallet discovery. Assumes wallet is already known. |
 | [W3C CHAPI](https://chapi.io/) | Browser mediator for `navigator.credentials` | Central mediator dependency. No late-arrival handling. No custom UI. |
 
 **Discovery protocols** find who to talk to:
@@ -129,6 +130,7 @@ The identity space has wire protocols (how credentials move) and discovery proto
 |---|---|---|
 | [W3C Digital Credentials API](https://w3c-fedid.github.io/digital-credentials/) | Routes to OS wallets (Apple Wallet, Google Wallet) | No browser extension discovery. |
 | [DIF Wallet Rendering](https://identity.foundation/wallet-rendering/) | Standardizes how credentials look (icons, colors, labels) | Not about discovery — complementary. |
+| [Aries RFC 0031](https://identity.foundation/aries-rfcs/latest/features/0031-discover-features/) | Agent-to-agent feature/protocol negotiation via query/disclose messages | Runtime negotiation between connected agents. Not browser discovery. |
 | [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) | Multi-provider discovery for Ethereum wallets | Ethereum-only. Not for identity wallets. |
 | **id-wallet-adapter** | Discovers browser extension credential wallets, provides interactive picker with late-arrival support | Browser-first. Mobile deep links are out of scope (OID4VP handles that). |
 
@@ -473,6 +475,35 @@ See [SECURITY.md](SECURITY.md) for:
 - **Cross-origin considerations** — CORS for DID resolution and revocation checks
 - **API key exposure** — always use a backend proxy for resolver calls
 - **Trust chain** — the DID method spec defines where to resolve, not the VC
+
+## Roadmap
+
+### v0.3.0 — Protocol negotiation
+
+Multi-protocol wallets declare `protocols: ['oid4vp', 'chapi', 'didcomm-v2']`. The site needs a standard way to pick the best mutual protocol and act on it.
+
+```ts
+import { pickWallet, negotiateProtocol } from '@attestto/id-wallet-adapter'
+
+const wallet = await pickWallet()
+const protocol = negotiateProtocol(wallet, ['oid4vp', 'chapi'])
+// Returns 'oid4vp' if wallet supports it, falls back to 'chapi', or null
+```
+
+Inspired by [Aries RFC 0031 Discover Features](https://identity.foundation/aries-rfcs/latest/features/0031-discover-features/) — simplified for browser context.
+
+### v0.4.0 — Protocol execution
+
+`pickWallet()` returns a `ConnectedWallet` with protocol-specific request methods:
+
+```ts
+const wallet = await pickWallet()
+const vp = await wallet.request('oid4vp', { presentationDefinition })
+// or
+const vp = await wallet.request('chapi', { query, challenge, domain })
+```
+
+One return object, multiple wire protocols. The wallet adapter becomes the unified interface between the site and whatever protocol the wallet speaks.
 
 ## See It In Action
 
