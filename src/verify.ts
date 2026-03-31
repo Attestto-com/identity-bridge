@@ -34,15 +34,17 @@ export type VerifyErrorCode =
 
 export async function verifyPresentation(
   vp: Record<string, unknown>,
-  wallet: WalletAnnouncement | null,
+  wallet: WalletAnnouncement,
   options: VerifyOptions,
 ): Promise<VerifyResult> {
   const errors: VerifyError[] = []
   let holderDid: string | null = null
   let didDocument: Record<string, unknown> | null = null
 
-  if (options.trustedWallets && wallet) {
-    if (!options.trustedWallets.includes(wallet.did)) {
+  if (options.trustedWallets) {
+    if (!wallet) {
+      errors.push({ code: 'WALLET_UNTRUSTED', message: 'No wallet provided but trustedWallets is configured' })
+    } else if (!options.trustedWallets.includes(wallet.did)) {
       errors.push({ code: 'WALLET_UNTRUSTED', message: `Wallet ${wallet.did} not trusted` })
     }
   }
