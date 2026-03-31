@@ -229,6 +229,7 @@ registerWallet({
   icon: 'https://yourorg.com/icon-64.svg',
   version: '1.0.0',
   protocols: ['chapi', 'didcomm-v2'],
+  goals: ['verify-identity', 'issue-credential', 'present-proof'],
   maintainer: {
     name: 'Your Org',
     did: 'did:web:yourorg.com',
@@ -258,6 +259,9 @@ const wallet = await pickWallet()
 // Filter by protocol — only show OID4VP-capable wallets
 const wallet = await pickWallet({ requiredProtocols: ['oid4vp'] })
 
+// Filter by goal — only wallets that handle government IDs
+const wallet = await pickWallet({ requiredGoals: ['verify-identity'] })
+
 // Custom renderer — bring your own UI
 const wallet = await pickWallet({
   render: (onSelect, onCancel) => ({
@@ -273,6 +277,7 @@ const wallet = await pickWallet({
 |---|---|---|---|
 | `timeoutMs` | `number` | `2000` | How long to wait for wallet announcements |
 | `requiredProtocols` | `WalletProtocol[]` | `[]` | Only show wallets supporting all listed protocols |
+| `requiredGoals` | `string[]` | `[]` | Only show wallets supporting all listed goal codes |
 | `render` | `function` | built-in modal | Custom render function (see below) |
 
 **Custom renderer contract:**
@@ -340,6 +345,7 @@ interface WalletAnnouncement {
   icon: string             // Icon URL (SVG or PNG, 64x64)
   version: string          // Semantic version
   protocols: WalletProtocol[]  // Supported protocols
+  goals?: string[]             // Capability goal codes (Aries RFC 0519)
   maintainer: WalletMaintainer
   url?: string             // Homepage / docs
 }

@@ -20,6 +20,8 @@ export interface WalletAnnouncement {
   version: string
   /** Supported credential protocols */
   protocols: WalletProtocol[]
+  /** Capability goals this wallet can handle (Aries RFC 0519 inspired) */
+  goals?: string[]
   /** Who maintains this wallet */
   maintainer: WalletMaintainer
   /** Homepage or docs URL */

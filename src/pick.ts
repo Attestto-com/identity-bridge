@@ -30,6 +30,8 @@ export interface PickWalletOptions {
   timeoutMs?: number
   /** Only show wallets that support ALL of these protocols. Omit to show all. */
   requiredProtocols?: WalletProtocol[]
+  /** Only show wallets that support ALL of these goal codes. Omit to show all. */
+  requiredGoals?: string[]
   /** Custom render function. Omit to use the built-in vanilla modal. */
   render?: (
     onSelect: (wallet: WalletAnnouncement) => void,
@@ -53,6 +55,7 @@ export interface PickWalletOptions {
 export function pickWallet(options?: PickWalletOptions): Promise<WalletAnnouncement | null> {
   const timeoutMs = options?.timeoutMs ?? 2000
   const requiredProtocols = options?.requiredProtocols ?? []
+  const requiredGoals = options?.requiredGoals ?? []
 
   return new Promise((resolve) => {
     const wallets: WalletAnnouncement[] = []
@@ -88,6 +91,11 @@ export function pickWallet(options?: PickWalletOptions): Promise<WalletAnnouncem
       if (requiredProtocols.length > 0) {
         const supported = new Set(detail.wallet.protocols)
         if (!requiredProtocols.every((p) => supported.has(p))) return
+      }
+      // Filter: skip wallets that don't support all required goals
+      if (requiredGoals.length > 0) {
+        const supported = new Set(detail.wallet.goals ?? [])
+        if (!requiredGoals.every((g) => supported.has(g))) return
       }
       seen.add(detail.wallet.did)
       wallets.push(detail.wallet)
