@@ -1,6 +1,6 @@
 {
   "name": "@attestto/id-wallet-adapter",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Universal wallet adapter for credential wallet extensions — discovery, VP exchange, and cryptographic verification",
   "type": "module",
   "main": "dist/index.cjs",
