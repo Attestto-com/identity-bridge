@@ -87,6 +87,8 @@ export interface SignResponse {
   publicKeyJwk?: JsonWebKey
   /** ISO 8601 timestamp of signature creation (present when approved) */
   timestamp?: string
+  /** Store token — when present, the resulting VC push is auto-accepted without a second popup */
+  storeToken?: string
 }
 
 /** Payload of the sign event (site → wallet) */
