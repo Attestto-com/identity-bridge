@@ -570,4 +570,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-MIT
+[Apache 2.0](./LICENSE) — see also [`NOTICE`](./NOTICE).
+
+This package ships with Apache 2.0's explicit patent grant (§3): every contributor grants a perpetual, worldwide, royalty-free, irrevocable patent license for their contributions, plus the §3 retaliation clause that terminates that license for anyone who weaponizes patents against the project. We chose Apache 2.0 specifically because protocol-shaped infrastructure deserves a license that says something explicit about patents. MIT does not.
