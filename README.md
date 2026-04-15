@@ -1,49 +1,33 @@
 # @attestto/id-wallet-adapter
 
-Discovery and verification layer for credential wallet browser extensions — like [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) but for W3C identity wallets.
+[![npm version](https://img.shields.io/npm/v/@attestto/id-wallet-adapter.svg)](https://www.npmjs.com/package/@attestto/id-wallet-adapter)
 
+Part of the [Attestto](https://attestto.org) identity infrastructure. [Documentation](https://attestto.org/docs)
+
+> Discovery and verification layer for credential wallet browser extensions — like EIP-6963 but for W3C identity wallets.
+
+A website needs to verify a user's identity — KYC status, a university degree, a vLEI credential from GLEIF, a government-issued ID. The user has a credential wallet (browser extension or mobile app) that holds these credentials. This package handles discovery (which wallet does the user have), requests (ask for a Verifiable Presentation with selective disclosure), and verification (validate the cryptographic proof chain).
+
+## Architecture
+
+```mermaid
+flowchart LR
+    A["App / Site"] --> B["id-wallet-adapter"]
+    B -->|discoverWallets| C["Extensions in MAIN world"]
+    B -->|registerWallet| D["Wallet Extension A"]
+    B -->|registerWallet| E["Wallet Extension B"]
+    B -->|registerWallet| F["Wallet Extension C"]
+    D --> G["User's DIDs"]
+    E --> G
+    F --> G
+    G -->|verifyPresentation| H["Trust Chain<br/>DID resolution<br/>Signature verification<br/>Issuer trust<br/>Revocation check"]
+    
+    style A fill:#1a1a2e,stroke:#7c3aed,color:#e0e0e0
+    style B fill:#1a1a2e,stroke:#10b981,color:#e0e0e0
+    style H fill:#1a1a2e,stroke:#06b6d4,color:#e0e0e0
 ```
-Site calls discoverWallets()
-  → Extensions announce themselves (name, DID, icon, protocols, goals)
-  → Site shows picker (or auto-selects)
-  → User picks a wallet
-  → Site requests a Verifiable Presentation
-  → Wallet returns signed VP
-  → Site verifies: DID resolution → signature → issuer trust → revocation
-```
 
-## What this is
-
-A website needs to verify a user's identity — KYC status, a university degree, a vLEI credential from GLEIF, a government-issued ID. The user has a credential wallet (browser extension or mobile app) that holds these credentials. The site needs to:
-
-1. **Discover** which wallet the user has
-2. **Request** a Verifiable Presentation with selective disclosure
-3. **Verify** the cryptographic proof chain
-
-This package handles all three.
-
-<table>
-<tr>
-<td width="60" align="center"><strong>Step</strong></td>
-<td width="280"><strong>What happens</strong></td>
-<td><strong>Output</strong></td>
-</tr>
-<tr>
-<td align="center">1</td>
-<td><strong>id-wallet-adapter</strong> discovers installed wallets</td>
-<td>List of available credential wallets</td>
-</tr>
-<tr>
-<td align="center">2</td>
-<td>User picks a wallet, site requests a VP</td>
-<td>Signed Verifiable Presentation</td>
-</tr>
-<tr>
-<td align="center">3</td>
-<td><strong>id-wallet-adapter</strong> verifies the VP</td>
-<td>Holder DID, issuer trust, revocation status</td>
-</tr>
-</table>
+The identity space has wire protocols (OID4VP, DIDComm v2) that define how credentials move between wallets and sites. But before those conversations can happen, you need a discovery layer. **id-wallet-adapter is that discovery layer.** Without it, sites hardcode detection for every wallet ("Connect with Wallet X" buttons) — the NASCAR problem. EIP-6963 solved this for Ethereum wallets. id-wallet-adapter solves it for identity wallets.
 
 ### Why this matters
 
@@ -90,15 +74,23 @@ if (window.trinsic) { /* ... */ }
 const wallet = await pickWallet()
 ```
 
-## Install
+## Quick start
+
+### Prerequisites
+
+- Node.js 16+
+- Browser with support for `CustomEvent` (all modern browsers)
+- Credential wallet browser extension installed (optional for initial testing)
+
+### Install
 
 ```bash
 npm install @attestto/id-wallet-adapter
 ```
 
-## Quick Start
+### Try it
 
-### Three tiers of usage
+#### Three tiers of usage
 
 ```ts
 import { discoverWallets, pickWallet, verifyPresentation } from '@attestto/id-wallet-adapter'
@@ -515,6 +507,18 @@ The site will verify your VP by resolving the holder's DID and checking the sign
 </tr>
 </table>
 
+## Ecosystem
+
+Related repos in the Attestto ecosystem:
+
+| Package | Purpose | Repo |
+|---|---|---|
+| **@attestto/wallet-identity-resolver** | Given a wallet address, resolve all DIDs, credentials, SBTs attached to it | [GitHub](https://github.com/Attestto-com/wallet-identity-resolver) |
+| **@attestto/verify** | Web Components for wallet discovery, signing, and VP verification | [GitHub](https://github.com/Attestto-com/verify) |
+| **@attestto/vc-sdk** | Issue and verify W3C Verifiable Credentials | [GitHub](https://github.com/Attestto-com/vc-sdk) |
+| **did-sns-spec** | `did:sns` DID method spec — Solana domain to DID resolution | [GitHub](https://github.com/Attestto-com/did-sns-spec) |
+| **vLEI-Solana-Bridge** | Write and verify vLEI attestations from GLEIF on Solana | [GitHub](https://github.com/Attestto-com/vLEI-Solana-Bridge) |
+
 ## Security
 
 See [SECURITY.md](SECURITY.md) for:
@@ -524,6 +528,29 @@ See [SECURITY.md](SECURITY.md) for:
 - **Cross-origin considerations** — CORS for DID resolution and revocation checks
 - **API key exposure** — always use a backend proxy for resolver calls
 - **Trust chain** — the DID method spec defines where to resolve, not the VC
+
+## Build with an LLM
+
+This repo ships a [`llms.txt`](./llms.txt) context file — a machine-readable summary of the API, data structures, and integration patterns designed to be read by AI coding assistants.
+
+### Recommended setup
+
+Use the [`attestto-dev-mcp`](../attestto-dev-mcp) server to give your LLM active access to the ecosystem:
+
+```bash
+cd ../attestto-dev-mcp
+npm install && npm run build
+```
+
+Then add it to your Claude / Cursor / Windsurf config and ask:
+
+> *"Explore the Attestto ecosystem and scaffold me an on-chain identity resolver"*
+
+### Which model?
+
+We recommend **[Claude](https://claude.ai) Pro** (5× usage vs free) or higher. Long context and strong TypeScript reasoning handle this codebase well. The MCP server works with any LLM that supports tool use.
+
+> **Quick start:** Ask your LLM to read `llms.txt` in this repo, then describe what you want to build. It will find the right archetype, generate boilerplate, and walk you through the first run.
 
 ## Roadmap
 
