@@ -23,6 +23,35 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Stub guard
+        run: |
+          PATTERNS=(
+            "// *(TODO|FIXME|HACK|XXX|PLACEHOLDER|placeholder)"
+            "did:(web|example):demo"
+            "did:(web|example):medico|did:example:"
+            "['\"]fake[_-]|['\"]dummy[_-]|['\"]sample[_-]"
+            "alert\(['\"]"
+            "coming.?soon|próximamente|proximamente"
+            "not yet implemented|not implemented"
+            "'00000'|\"00000\""
+          )
+          EXCLUDE="node_modules/\|/dist/\|__tests__/\|__mocks__/\|/demo/\|/scripts/\|/fixtures/\|\.test\.\|\.spec\.\|vitest\.\|jest\."
+          INCLUDE='\.ts:\|\.tsx:\|\.vue:\|\.js:\|\.mjs:'
+          ALLOW='stub-guard-ignore\|/i18n/\|/locales/\|@example\|/\*\*\|^ *\*'
+          HITS=0
+          for pat in "${PATTERNS[@]}"; do
+            matches=$(grep -rEn -i "$pat" src 2>/dev/null | grep "$INCLUDE" | grep -v "$EXCLUDE" | grep -v "$ALLOW" || true)
+            if [ -n "$matches" ]; then
+              echo "$matches"
+              HITS=$((HITS + $(echo "$matches" | wc -l)))
+            fi
+          done
+          if [ "$HITS" -gt 0 ]; then
+            echo "::error::Stub guard failed: $HITS stub(s) found"
+            exit 1
+          fi
+          echo "Stub guard passed"
+
       - name: Type-check (lint)
         run: npm run lint
 
