@@ -1,0 +1,150 @@
+# @attestto/id-wallet-adapter
+
+> Discovery and verification layer for credential wallet browser extensions — like EIP-6963 but for W3C identity wallets.
+
+Part of the [Attestto Open](https://attestto.org) ecosystem.
+
+## What it does
+
+A site needs to verify a user's identity — KYC status, a government-issued credential, a vLEI from GLEIF, a university degree. The user has a browser extension credential wallet (like Attestto ID). This package handles three things:
+
+1. **Discover** which wallet extensions the user has installed
+2. **Request** a Verifiable Presentation from that wallet (with selective disclosure)
+3. **Verify** the full cryptographic proof chain (DID resolution → signature → issuer trust → revocation)
+
+## The problem it solves
+
+Without this, sites hard-code detection for every possible wallet (`if (window.attesttoId)`, `if (window.credible)`, ...) — the NASCAR problem. EIP-6963 solved this for Ethereum. `id-wallet-adapter` solves it for W3C identity wallets.
+
+It sits between the wallet discovery layer and the wire protocol. OID4VP and DIDComm define how credentials move — this package finds the wallet to move them with.
+
+## Install
+
+```bash
+npm install @attestto/id-wallet-adapter
+```
+
+## Quick start
+
+### Tier 1 — Headless (build your own UI)
+
+```typescript
+import { discoverWallets } from '@attestto/id-wallet-adapter'
+
+const wallets = await discoverWallets()
+// wallets: CredentialWallet[] — name, DID, icon, supported protocols
+```
+
+### Tier 2 — Default modal (zero config)
+
+```typescript
+import { pickWallet } from '@attestto/id-wallet-adapter'
+
+const wallet = await pickWallet()
+// Shows built-in modal, user picks wallet, returns selected CredentialWallet
+```
+
+### Tier 3 — Custom renderer (bring your own UI)
+
+```typescript
+const wallet = await pickWallet({
+  render: (onSelect, onCancel) => ({
+    update: (wallets) => { /* re-render your list */ },
+    destroy: () => { /* cleanup DOM */ },
+  }),
+})
+```
+
+### Request and verify a Verifiable Presentation
+
+```typescript
+import { pickWallet, verifyPresentation } from '@attestto/id-wallet-adapter'
+
+// 1. Discover wallet
+const wallet = await pickWallet()
+
+// 2. Request a VP — user sees per-field consent screen in their wallet
+const vp = await wallet.requestPresentation({
+  type: 'DrivingLicense',
+  issuerDid: 'did:web:cosevi.attestto.id',
+  // fields: ['licenseNumber', 'categories'] — selective disclosure
+})
+
+// 3. Verify the full proof chain
+const result = await verifyPresentation(vp)
+// result.valid: boolean
+// result.holderDid: string
+// result.issuerVerified: boolean
+// result.revocationChecked: boolean
+```
+
+## How wallets announce themselves
+
+Extensions dispatch a `CredentialWalletAnnounce` event on load. `discoverWallets()` listens for these events (with a configurable timeout for late-arriving extensions). Each announcement includes:
+
+```typescript
+interface WalletAnnouncement {
+  name: string
+  icon: string              // data: URI or https URL
+  did: string               // wallet's own DID
+  protocols: string[]       // e.g. ['chapi', 'oid4vp', 'didcomm/v2']
+  goals: string[]           // e.g. ['credential.present', 'credential.receive']
+}
+```
+
+## Wire protocol compatibility
+
+This package handles **discovery**. The actual credential exchange uses whatever wire protocol the wallet supports:
+
+| Protocol | Description |
+|---|---|
+| W3C CHAPI | Browser mediator via `navigator.credentials` |
+| OID4VP | VP exchange via OAuth 2.0 flows |
+| DIDComm v2 | Encrypted peer-to-peer messaging |
+
+`id-wallet-adapter` is the lookup. The protocols above are the conversation.
+
+## Source layout
+
+```
+src/
+  index.ts           — public exports
+  discover.ts        — discoverWallets(), event listener, late-arrival handling
+  pick.ts            — pickWallet(), modal rendering
+  verify.ts          — verifyPresentation(), proof chain validation
+  register.ts        — registerWallet() — for wallet extension authors
+  credential-offer.ts — credential offer handling
+  sign.ts            — signing helpers
+  policy/            — issuer trust policy evaluation
+  types.ts           — TypeScript interfaces
+```
+
+## For wallet extension authors
+
+To make your extension discoverable:
+
+```typescript
+import { registerWallet } from '@attestto/id-wallet-adapter'
+
+registerWallet({
+  name: 'My Credential Wallet',
+  icon: 'data:image/svg+xml,...',
+  did: 'did:web:my-wallet.example.com',
+  protocols: ['chapi', 'oid4vp'],
+  goals: ['credential.present'],
+  requestPresentation: async (options) => { /* ... */ },
+})
+```
+
+## Related packages
+
+| Package | Purpose |
+|---|---|
+| `identity-resolver` | Resolve identity from a Solana wallet address (step before this) |
+| `@attestto-com/vc-sdk` | Verify individual credentials (used internally) |
+| `did-sns-spec` | `did:sns` DID method — used as issuer/holder DID format |
+| `attestto-desktop` | Includes the Attestto ID extension which implements this protocol |
+
+## License
+
+Apache 2.0 — [Attestto Open](https://attestto.org)
